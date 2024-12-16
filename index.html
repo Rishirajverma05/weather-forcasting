@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Weather Forcasting</title>
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #070707;
+        color: #00ceb5;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        position: relative;
+      }
+
+      .container {
+        text-align: center;
+        padding: 20px;
+        z-index: 1;
+        background-color: #070707;
+        border-radius: 10px;
+        border: 4px solid #00ceb5;
+      }
+
+      h1 {
+        font-size: 3rem;
+        margin-bottom: 20px;
+      }
+
+      h2 {
+        font-size: 2rem;
+        margin-bottom: 20px;
+      }
+
+      input {
+        padding: 10px;
+        font-size: 1rem;
+        margin-right: 10px;
+        border: 4px solid #00ceb5;
+        border-radius: 5px;
+      }
+
+      button {
+        padding: 10px 20px;
+        font-size: 1rem;
+        cursor: pointer;
+        border: none;
+        border-radius: 5px;
+        background-color: #00ceb5;
+        color: #070707;
+      }
+
+      #weather-info {
+        text-align: center;
+        margin-top: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      #weather-info img {
+        width: 80px;
+        height: 80px;
+        margin-top: 10px;
+      }
+
+      #weather-info p {
+        font-size: 1.2rem;
+        margin-top: 5px;
+      }
+
+      #background-video {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: -1;
+        display: block;
+      }
+
+      .sunny {
+        background-image: url("sunny.jpg");
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+      }
+
+      .rainy {
+        background-image: url("rain.jpg");
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+      }
+
+      .cloudy {
+        background-image: url("clody.jpg");
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+      }
+
+      .snowy {
+        background-image: url("snow.jpg");
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+      }
+
+      .default {
+        background-image: url("default1.jpg");
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Weather Forcasting</h1>
+      <input type="text" id="location" placeholder="Enter Location" />
+      <button onclick="fetchWeather()">Get Weather</button>
+      <div id="weather-info">
+        <h2 id="city-name"></h2>
+        <p id="temperature"></p>
+        <p id="description"></p>
+        <img id="weather-icon" alt="Weather Icon" style="display: none" />
+        <p id="wind-speed"></p>
+        <p id="humidity"></p>
+        <p id="pressure"></p>
+      </div>
+    </div>
+
+    <video class="video-background" autoplay muted loop id="background-video">
+      <source src="bg.mp4" type="video/mp4" />
+    </video>
+
+    <script>
+      const apiKey = "b0b3a110f68ac2d26fca2f3ebbabdb50";
+
+      async function fetchWeather() {
+        const location = document.getElementById("location").value;
+        if (!location) {
+          alert("Please enter a location");
+          return;
+        }
+
+        const url = `https://api.openweathermap.org/data/2.5/weather?q=${location}&appid=${apiKey}&units=metric`;
+
+        try {
+          const response = await fetch(url);
+          const data = await response.json();
+
+          if (data.cod === "404") {
+            alert("Location not found");
+
+            document.getElementById("weather-icon").style.display = "none";
+            return;
+          }
+
+          const cityName = data.name;
+          const temperature = data.main.temp;
+          const description = data.weather[0].description;
+          const iconCode = data.weather[0].icon;
+          const windSpeed = data.wind.speed;
+          const humidity = data.main.humidity;
+          const pressure = data.main.pressure;
+
+          document.getElementById("city-name").textContent = cityName;
+          document.getElementById(
+            "temperature"
+          ).textContent = `${temperature}°C`;
+          document.getElementById("description").textContent = description;
+          document.getElementById(
+            "wind-speed"
+          ).textContent = `Wind Speed: ${windSpeed} m/s`;
+          document.getElementById(
+            "humidity"
+          ).textContent = `Humidity: ${humidity}%`;
+          document.getElementById(
+            "pressure"
+          ).textContent = `Pressure: ${pressure} hPa`;
+
+          const weatherIconUrl = `http://openweathermap.org/img/wn/${iconCode}.png`;
+          document.getElementById("weather-icon").src = weatherIconUrl;
+
+          document.getElementById("weather-icon").style.display = "block";
+
+          updateBackground(description);
+        } catch (error) {
+          console.error("Error fetching weather data:", error);
+          alert("Error fetching weather data");
+
+          document.getElementById("weather-icon").style.display = "none";
+        }
+      }
+
+      function updateBackground(weather) {
+        const body = document.body;
+        const video = document.getElementById("background-video");
+
+        video.style.display = "none";
+
+        body.classList.remove("sunny", "rainy", "cloudy", "snowy", "default");
+
+        if (weather.includes("clear")) {
+          body.classList.add("sunny");
+        } else if (weather.includes("rain")) {
+          body.classList.add("rainy");
+        } else if (weather.includes("cloud")) {
+          body.classList.add("cloudy");
+        } else if (weather.includes("snow")) {
+          body.classList.add("snowy");
+        } else {
+          body.classList.add("default");
+        }
+      }
+    </script>
+  </body>
+</html>
