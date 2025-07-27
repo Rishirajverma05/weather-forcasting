@@ -5,7 +5,7 @@ A simple web application built primarily with HTML to display weather informatio
 ## 🌐 Live Demo
 
 You can view a live demo of the project hosted on GitHub Pages:  
-[🔗 https://rishirajverma29.github.io/weather-forcasting/](https://rishirajverma29.github.io/weather-forcasting/)
+[🔗 https://rishirajverma05.github.io/weather-forcasting/](https://rishirajverma29.github.io/weather-forcasting/)
 
 ## ✨ Features
 
